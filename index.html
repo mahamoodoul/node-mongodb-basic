@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Title</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body>
+    <h1>my node and mongo db </h1>
+    <p id="username"></p>
+    <div class="container">
+        <div class=" row">
+            <div class="col-md-6">
+
+                <input type="text" class="from-control" id="name" value="" placeholder="Product Name">
+                <br>
+                <input type="text" class="from-control" id="price" value="" placeholder="Product Price">
+                <br>
+                <input type="text" class="from-control" id="stock" value="" placeholder="Total in Stock">
+                <br>
+                <button class="btn btn-primary" id="addproduct">Add Product</button>
+                <br>
+                <p id="success" style="color: blue; display: none;"><small>data insrted sucessfully</small></p>
+
+            </div>
+            <div class="col-md-6">
+                <h1>Data is here</h1>
+                <p id="nameShow"></p>
+                <p id="priceShow"></p>
+                <p id="stockShow"></p>
+
+            </div>
+
+            <br>
+
+        </div>
+        <div>
+            <ul id="pd-list">
+               
+            </ul>
+        </div>
+    </div>
+
+
+
+
+    <script>
+
+
+        fetch('http://localhost:4200/user/3')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('username').innerText = data.name;
+            });
+
+
+
+            fetch('http://localhost:4200/products')
+            .then(res => res.json())
+            .then(data => {
+                displayProdutcs(data);
+                console.log(data);
+                
+            });
+            function displayProdutcs(data){
+                const pdContainer=document.getElementById('pd-list');
+                for (let i = 0; i < data.length; i++) {
+                    const product = data[i];
+                    appendItem(product,pdContainer);
+                }
+            }
+            function appendItem(product,pdContainer){
+                const item=document.createElement('li');
+                    item.innerText=`${product.name}: $${product.price}:available: ${product.stock}`;
+                    pdContainer.appendChild(item);
+            }
+
+
+
+
+        //Post data to the Server
+        const btnAddUser = document.getElementById('addproduct');
+
+
+        btnAddUser.addEventListener('click', () => {
+            const name = document.getElementById('name').value;
+            const price = document.getElementById('price').value;
+            const stock = document.getElementById('stock').value;
+
+            const products = { name, price, stock };
+            console.log(products);
+            //post data to server side
+
+            fetch('http://localhost:4200/addProducts', {
+                method: 'POST',
+                body: JSON.stringify(products),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    updateData(data);
+
+                    //clean
+                    document.getElementById('name').value='';
+                    document.getElementById('price').value='';
+                    document.getElementById('stock').value='';
+
+                    //show success message
+
+                    const success=document.getElementById('success');
+                    success.style.display='block';
+                    setTimeout(() =>{
+                        success.style.display='none';
+                    },5000)
+                })
+        })
+
+        function updateData(product) {
+            console.log(product);
+            const pdContainer=document.getElementById('pd-list');
+            appendItem(product,pdContainer);
+            document.getElementById('nameShow').innerText = product.name;
+            document.getElementById('priceShow').innerText = product.price;
+            document.getElementById('stockShow').innerText = product.stock;
+        }
+    </script>
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
